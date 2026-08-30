@@ -10,9 +10,10 @@ export interface SendTextResult {
 }
 
 /**
- * Optional Messaging API fallback for WhatsApp text.
- * Primary customer replies use 360dialog MCP `send_message` (Hub OAuth) from the Automation.
- * This path needs D360_API_KEY (channel Messaging API key) — only if MCP send is unavailable.
+ * Send WhatsApp text via 360dialog Messaging API.
+ * Official mcp.360dialog.com is Hub-admin only — customer chat uses this API
+ * (Worker Path Direct, River MCP /mcp, or POST /send).
+ * Needs D360_API_KEY (channel Messaging API key).
  * Docs: POST https://waba-v2.360dialog.io/messages
  */
 export async function sendTextMessage(

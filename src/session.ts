@@ -1,3 +1,4 @@
+import { isGreetingOnly } from "./sales-reply";
 import type { Env, QualifyStage, SessionState } from "./types";
 import { getKv } from "./kv";
 import { num } from "./util";
@@ -38,8 +39,7 @@ export function createSession(
 
 /**
  * Advance qualification stage heuristically from inbound text.
- * The Cursor Automation is the source of truth for conversation quality;
- * Worker only keeps a coarse funnel snapshot for context + resume.
+ * Path Direct Worker replies use this; Automation can refine when enabled.
  */
 export function advanceStage(
   session: SessionState,
@@ -57,6 +57,13 @@ export function advanceStage(
 
   const stage: QualifyStage = session.stage;
   if (stage === "need" && !session.need) {
+    // Don't treat "hi" as the business need
+    if (isGreetingOnly(t) && (session.message_count ?? 0) === 0) {
+      return next;
+    }
+    if (isGreetingOnly(t) && !session.need) {
+      return next;
+    }
     next.need = t.slice(0, 500);
     next.stage = "timeline";
   } else if (stage === "timeline" && !session.timeline) {
@@ -65,6 +72,8 @@ export function advanceStage(
   } else if (stage === "fit" && !session.fit) {
     next.fit = t.slice(0, 500);
     next.stage = "recommend";
+  } else if (stage === "recommend") {
+    next.stage = "done";
   }
 
   return next;

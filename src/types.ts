@@ -6,6 +6,13 @@ export interface Env {
   /** "true" | "false" — default true until secrets wired */
   DRY_RUN: string;
 
+  /**
+   * worker = Path Direct (Worker sells via Messaging API) — default go-live
+   * automation = wake Cursor only (needs River MCP /mcp send_message)
+   * both = Worker reply + wake (avoid unless debugging)
+   */
+  REPLY_MODE?: string;
+
   D360_API_BASE: string;
   RATE_LIMIT_MAX: string;
   RATE_LIMIT_WINDOW_SECONDS: string;
@@ -77,14 +84,13 @@ export interface CursorWakePayload {
   };
   session: SessionState;
   reply: {
-    /** Primary: Automation uses 360dialog MCP send_message after Hub OAuth */
-    primary: "360dialog_mcp";
-    mcp_url: "https://mcp.360dialog.com/mcp";
+    /** Primary: River Worker MCP wraps Messaging API (official 360dialog MCP is Hub-admin only) */
+    primary: "river_mcp";
+    mcp_path: "/mcp";
     mcp_tools: string[];
     note: string;
-    /** Optional Messaging API fallback on this Worker */
-    fallback_send_path: "/send";
-    fallback_note: string;
+    send_path: "/send";
+    send_note: string;
   };
 }
 

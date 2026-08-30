@@ -36,18 +36,13 @@ export function buildWakePayload(
     },
     session,
     reply: {
-      primary: "360dialog_mcp",
-      mcp_url: "https://mcp.360dialog.com/mcp",
-      mcp_tools: [
-        "list_conversations",
-        "send_message",
-        "get_messages",
-        "label_conversation",
-      ],
-      note: "Sales-only: reply with 360dialog MCP send_message (Hub OAuth). Qualify need→timeline→fit then recommend a package. Do not book calendar. Worker /send is optional Messaging API fallback only.",
-      fallback_send_path: "/send",
-      fallback_note:
-        "Only if MCP send fails: POST { to, text } with Authorization: Bearer <SEND_AUTH_TOKEN or CURSOR_API_KEY>.",
+      primary: "river_mcp",
+      mcp_path: "/mcp",
+      mcp_tools: ["send_message", "health"],
+      note: "Sales-only. Official mcp.360dialog.com is Hub-admin only (no chat send). Reply with River MCP send_message or POST /send. Qualify need→timeline→fit then recommend one package. Do not book calendar.",
+      send_path: "/send",
+      send_note:
+        "POST { to, text } with Authorization: Bearer <SEND_AUTH_TOKEN or CURSOR_API_KEY>.",
     },
   };
 }
