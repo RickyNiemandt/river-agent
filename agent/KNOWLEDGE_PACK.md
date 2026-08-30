@@ -66,7 +66,7 @@ Website that converts + LinkedIn content/outreach engine.
 Shopify or WooCommerce. PayFast / Yoco (or equivalent). Platform + gateway fees excluded.
 
 | Package | Build | Maintain | Notes |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | **Starter Store** | **R18,000** | **R2,900/mo** | ~50 products; theme/light custom |
 | **Growth Store** (best value) | **R38,000** | **R5,900/mo** | ~200 products; shipping/policies; priority maintain |
 | **Scale Store** | **From R65,000** | **R11,900/mo** | Advanced/custom; stock/accounting handoffs; larger catalogue |
@@ -115,4 +115,4 @@ Then recommend **one** primary package with price (excl. VAT) and soft-close via
 
 ## WhatsApp tools (Automation)
 
-Primary: 360dialog MCP OAuth (`send_message`, etc.). Worker `/send` Messaging API is fallback only.
+Primary: River MCP `send_message` (Messaging API). Official mcp.360dialog.com is Hub-admin only — no customer send.

@@ -115,4 +115,4 @@ Then recommend **one** primary package with price (excl. VAT) and soft-close via
 
 ## WhatsApp tools (Automation)
 
-Primary: 360dialog MCP OAuth (`send_message`, etc.). Worker `/send` Messaging API is fallback only.
+Primary: River MCP `send_message` (Messaging API). Official mcp.360dialog.com is Hub-admin only — no customer send.

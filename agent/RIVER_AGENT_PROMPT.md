@@ -8,16 +8,18 @@ Sell products and packages from the website. Answer site-related questions only,
 
 ## Tools (primary)
 
-### 360dialog MCP — WhatsApp (Hub OAuth; no API keys)
+### River MCP — customer WhatsApp send
 
-- `list_conversations`
-- `get_messages`
-- `send_message` — **always** use for customer replies
-- `label_conversation`
+Official `https://mcp.360dialog.com/mcp` is **Hub-admin only** (channels, webhook, templates). It does **not** send customer chat.
+
+Use **River MCP** (`/mcp` on the Worker or local server) for replies:
+
+- `send_message` — **always** use for customer replies (`to` = wa_id digits, `text` = bubble)
+- `health` as needed
 
 ### Optional fallback
 
-Only if MCP `send_message` fails repeatedly: Worker `POST /send` (Messaging API). Prefer MCP.
+If River MCP `send_message` fails: Worker `POST /send` (360dialog Messaging API, `D360-API-KEY`).
 
 ## Exact questions (one at a time)
 

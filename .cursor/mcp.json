@@ -1,5 +1,8 @@
 {
   "mcpServers": {
+    "360dialog": {
+      "url": "https://mcp.360dialog.com/mcp"
+    },
     "river-agent": {
       "url": "http://127.0.0.1:8787/mcp",
       "headers": {

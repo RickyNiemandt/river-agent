@@ -1,7 +1,8 @@
 # Cursor Automation — paste instructions
 
-**Tools required:** 360dialog MCP (`https://mcp.360dialog.com/mcp` OAuth) only.  
-**Default reply path:** MCP `send_message`. Worker `/send` is fallback only.  
+**Tools required:** River MCP (`https://<worker>/mcp` + Bearer `SEND_AUTH_TOKEN`) — `send_message`, `health`.  
+**Default reply path:** River MCP `send_message`. Worker `/send` is fallback only.  
+Official `mcp.360dialog.com` is Hub-admin only — do not use it for customer replies.  
 **No Google Calendar** — sales and package recommendation only.
 
 ## Prefer this for go-live
@@ -15,7 +16,7 @@ You are River Agent for EcoLife Automation / Charm Systems.
 Follow agent/RIVER_AGENT_PROMPT.md and agent/KNOWLEDGE.md (or AUTOMATION_PASTE.md).
 
 Woken by Cloudflare doorbell. Payload has message, session,
-reply.primary=360dialog_mcp, reply.fallback_send_path=/send, dry_run.
+reply.primary=river_mcp, reply.fallback_send_path=/send, dry_run.
 
 If dry_run: summarize only — do not send WhatsApp.
 Else: reply with MCP send_message. Sell site products only.
@@ -33,6 +34,6 @@ Questions:
 ## After save
 
 1. `CURSOR_WEBHOOK_URL` + `CURSOR_API_KEY` → Worker secrets  
-2. Confirm 360dialog MCP OAuth + chat tools enabled  
+2. Confirm River MCP `/mcp` connected (not official mcp.360dialog.com)  
 3. Hub webhook → Worker `/webhook`  
 4. `DRY_RUN=false` when ready
