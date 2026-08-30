@@ -1,0 +1,65 @@
+# Deploy River Agent doorbell Worker to Cloudflare
+
+# Required GitHub repo secrets:
+#   CLOUDFLARE_API_TOKEN
+#   CLOUDFLARE_ACCOUNT_ID
+#   CURSOR_WEBHOOK_URL
+#   CURSOR_API_KEY
+# Optional:
+#   D360_API_KEY
+#   SEND_AUTH_TOKEN
+#
+# Before first deploy: create KV and put ids in wrangler.jsonc
+#   npx wrangler kv namespace create RIVER_KV
+#   npx wrangler kv namespace create RIVER_KV --preview
+
+name: Deploy Worker
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Require real KV ids
+        run: |
+          if grep -q '00000000000000000000000000000000' wrangler.jsonc; then
+            echo "::error::Replace placeholder RIVER_KV ids in wrangler.jsonc before deploy."
+            echo "Run: npx wrangler kv namespace create RIVER_KV && --preview, paste ids, commit."
+            exit 1
+          fi
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+          secrets: |
+            CURSOR_WEBHOOK_URL
+            CURSOR_API_KEY
+            D360_API_KEY
+            SEND_AUTH_TOKEN
+        env:
+          CURSOR_WEBHOOK_URL: ${{ secrets.CURSOR_WEBHOOK_URL }}
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          D360_API_KEY: ${{ secrets.D360_API_KEY }}
+          SEND_AUTH_TOKEN: ${{ secrets.SEND_AUTH_TOKEN }}
