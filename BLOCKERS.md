@@ -1,21 +1,26 @@
 # Current blockers (evidence-based)
 
-Updated: 2026-08-30 20:15 UTC (Cloud Agent)
+Updated: 2026-08-30 20:42 UTC (Cloud Agent)
 
 | Goal piece | Status | Evidence |
 | --- | --- | --- |
-| Sales-only code | Done | Worker Path Direct + River MCP `/mcp`; typecheck |
-| Reusable **GitHub** repo | **Done** | https://github.com/RickyNiemandt/river-agent |
-| Official 360dialog MCP chat send | **Not available** | Docs: Hub-admin only (`get_self`, `list_channels`, `get_webhook`, …). No customer `send_message` |
-| Path Direct (Messaging API) | **Code ready** | Needs Ricky: `D360_API_KEY` + `wrangler deploy` + Hub → `/webhook` |
-| WhatsApp smoke test | **Blocked** | No live Messaging API key / deployed Worker in this session |
-| Cursor Automation brain | Optional | River MCP `https://<worker>/mcp` + `REPLY_MODE=automation` |
+| Reusable GitHub repo | **Done** | https://github.com/RickyNiemandt/river-agent — `scripts/local-server.mjs`, `src/index.ts`, `LOCAL_WINDOWS.md` all 200 |
+| Sales funnel (dry-run) | **Done** | Local + public tunnel: Need→Timeline→Fit→package; status-only no-op |
+| Public inbound webhook | **Up this session** | `https://ridge-ensemble-seminar-hurricane.trycloudflare.com/webhook` → 200 + sales reply log |
+| Official 360dialog MCP chat send | **Not available** | Hub-admin only |
+| Messaging API key | **Blocked** | `.dev.vars` `D360_API_KEY` empty — cannot send WhatsApp |
+| Live WhatsApp smoke | **Blocked** | Needs key + Hub pointed at webhook |
 
-## What Ricky must do now (Path Direct)
+## Do this now (2 clicks)
 
-1. Hub → copy channel **Messaging API key** (`D360-API-KEY`)  
-2. `npx wrangler login` → `secret put D360_API_KEY` → set `DRY_RUN=false` → `npm run deploy`  
-3. Hub webhook URL = `https://<worker>/webhook`  
-4. WhatsApp: “What packages do you sell?”
+1. **360dialog Hub** → channel → Webhook URL =
 
-See [GO_LIVE.md](./GO_LIVE.md).
+   `https://ridge-ensemble-seminar-hurricane.trycloudflare.com/webhook`
+
+   (session tunnel — dies when this Cloud Agent stops. For a durable laptop path use [LOCAL_WINDOWS.md](./LOCAL_WINDOWS.md).)
+
+2. Paste the channel **Messaging API key** (`D360-API-KEY`) here or into `C:\Ecolife\RiverBot\.dev.vars` with `DRY_RUN=false`.
+
+3. WhatsApp the business number: `What packages do you sell?`
+
+Until the key is in, replies stay dry-run (logged, not sent).
