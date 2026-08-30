@@ -10,6 +10,7 @@
     "check": "tsc --noEmit",
     "local": "node scripts/local-server.mjs",
     "tunnel": "node scripts/local-tunnel.mjs",
+    "go-live": "node scripts/go-live.mjs",
     "test:webhook": "node scripts/simulate-webhook.mjs"
   },
   "devDependencies": {
