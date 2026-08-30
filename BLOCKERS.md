@@ -1,25 +1,21 @@
 # Current blockers (evidence-based)
 
-Updated: 2026-08-30 20:00 UTC (Cloud Agent — GitHub publish complete)
+Updated: 2026-08-30 20:15 UTC (Cloud Agent)
 
 | Goal piece | Status | Evidence |
 | --- | --- | --- |
-| Sales-only code | Done | On Origin `main`; typecheck green; prompts sales-only |
-| Self-contained Automation paste | Done | `agent/AUTOMATION_PASTE.md` (ignores status-only) |
-| Path A docs (Hub → Automation, no CF) | Done | `GO_LIVE.md` (Desktop + Cloud MCP click path) |
-| Reusable **GitHub** repo URL | **Done** | https://github.com/RickyNiemandt/river-agent |
-| Push scaffold to GitHub | **Done** | GitHub MCP `push_files` batches published to `main` (docs, agent pack, package-lock, Worker `src/`); verified `README.md`, `GO_LIVE.md`, `agent/AUTOMATION_PASTE.md`, `src/index.ts` |
-| 360dialog MCP in this session | **Absent** | No 360dialog / WhatsApp / `send_message` tools in dynamic MCP catalog |
-| WhatsApp go-live | **Needs Ricky** | Path A: MCP OAuth + Automation + Hub webhook + Bearer header |
-| Cloudflare Worker | Optional | Path B hardening |
+| Sales-only code | Done | Worker Path Direct + River MCP `/mcp`; typecheck |
+| Reusable **GitHub** repo | **Done** | https://github.com/RickyNiemandt/river-agent |
+| Official 360dialog MCP chat send | **Not available** | Docs: Hub-admin only (`get_self`, `list_channels`, `get_webhook`, …). No customer `send_message` |
+| Path Direct (Messaging API) | **Code ready** | Needs Ricky: `D360_API_KEY` + `wrangler deploy` + Hub → `/webhook` |
+| WhatsApp smoke test | **Blocked** | No live Messaging API key / deployed Worker in this session |
+| Cursor Automation brain | Optional | River MCP `https://<worker>/mcp` + `REPLY_MODE=automation` |
 
-## What Ricky must do now
+## What Ricky must do now (Path Direct)
 
-### Path A WhatsApp go-live clicks
-
-1. Connect MCP per [GO_LIVE.md](./GO_LIVE.md) Step 1 (Desktop **and** Cloud Agents) — URL `https://mcp.360dialog.com/mcp`, Hub OAuth  
-2. [cursor.com/automations](https://cursor.com/automations) → Webhook → paste `agent/AUTOMATION_PASTE.md` → enable 360dialog MCP → copy URL + API key  
-3. 360dialog Hub webhook URL = Automation URL; custom header `Authorization: Bearer <key>`  
-4. WhatsApp smoke test: “What packages do you sell?”
+1. Hub → copy channel **Messaging API key** (`D360-API-KEY`)  
+2. `npx wrangler login` → `secret put D360_API_KEY` → set `DRY_RUN=false` → `npm run deploy`  
+3. Hub webhook URL = `https://<worker>/webhook`  
+4. WhatsApp: “What packages do you sell?”
 
 See [GO_LIVE.md](./GO_LIVE.md).
