@@ -2,7 +2,8 @@
 
 WhatsApp sales AI for [EcoLife Automation / Charm Systems](https://charmsystemsllc.com/).
 
-**Repo:** https://github.com/RickyNiemandt/river-agent
+**Repo:** https://github.com/RickyNiemandt/river-agent  
+**Operator checkout (Windows):** `C:\Ecolife\RiverBot` — [LOCAL_WINDOWS.md](./LOCAL_WINDOWS.md)
 
 **River Agent** answers public WhatsApp inquiries about the website, stays friendly and sales-focused, qualifies with **Need → Timeline → Fit**, and recommends a site package (prices excl. VAT). Soft close via `ceo@charmsystemsllc.com` or `+27 72 606 4522`. **No calendar booking** in this version.
 
