@@ -2,7 +2,7 @@
   "name": "river-agent",
   "version": "0.1.0",
   "private": true,
-  "description": "River Agent — WhatsApp sales AI (360dialog MCP OAuth + CF Worker doorbell + Cursor Automation)",
+  "description": "River Agent — WhatsApp sales AI (Messaging API + River MCP + optional Cursor Automation)",
   "scripts": {
     "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy",

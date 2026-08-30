@@ -1,7 +1,10 @@
-DRY_RUN=true
-CURSOR_WEBHOOK_URL=https://api.cursor.com/v0/automations/webhooks/REPLACE_ME
-CURSOR_API_KEY=replace-me-cursor-automation-api-key
-# Optional Messaging API fallback only. Primary chat = 360dialog MCP OAuth (no key here).
+# Optional Messaging API key (channel) — required for Path Direct go-live
 D360_API_KEY=
 D360_PHONE_NUMBER_ID=
-SEND_AUTH_TOKEN=
+
+# Bearer for River MCP /mcp and POST /send
+SEND_AUTH_TOKEN=dev-send-token
+
+# Optional — only if REPLY_MODE=automation
+CURSOR_WEBHOOK_URL=
+CURSOR_API_KEY=

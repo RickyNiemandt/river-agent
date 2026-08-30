@@ -1,10 +1,10 @@
-# Automation setup checklist
+# Automation checklist (optional Path)
 
-**Primary:** 360dialog MCP OAuth chat tools. **Worker:** doorbell only. **`/send`:** optional fallback.  
-**No Calendar MCP** for this sales-only slice.
-
-- [ ] Webhook Automation; secrets `CURSOR_WEBHOOK_URL` / `CURSOR_API_KEY`
-- [ ] MCP `https://mcp.360dialog.com/mcp` OAuth — `list_conversations`, `send_message`, `get_messages`, `label_conversation`
-- [ ] Prompt from AUTOMATION_PASTE.md (self-contained) or AUTOMATION_INSTRUCTIONS.md + KNOWLEDGE*.md
+- [ ] Worker deployed with `D360_API_KEY` + `SEND_AUTH_TOKEN`
+- [ ] River MCP connected: `https://<worker>/mcp` + Bearer — tools `send_message`, `health`
+- [ ] Automation prompt pasted from `AUTOMATION_PASTE.md`
+- [ ] `REPLY_MODE=automation` + Cursor webhook secrets on Worker
 - [ ] Hub webhook → Worker `/webhook`
-- [ ] Smoke: inbound → Automation → MCP reply → package recommendation (no booking)
+- [ ] Smoke: “What packages do you sell?”
+
+Note: Official `mcp.360dialog.com` is Hub-admin only — not for chat send.

@@ -1,7 +1,9 @@
 import { wakeCursorAutomation, buildWakePayload } from "./cursor";
 import { sendTextMessage } from "./d360";
 import { isDuplicate } from "./dedupe";
+import { handleMcp } from "./mcp";
 import { checkRateLimit } from "./rate-limit";
+import { buildSalesReply } from "./sales-reply";
 import {
   advanceStage,
   createSession,
@@ -18,6 +20,13 @@ import {
 } from "./util";
 import { extractInboundMessages } from "./webhook";
 
+function replyMode(env: Env): "worker" | "automation" | "both" {
+  const m = String(env.REPLY_MODE || "worker").toLowerCase();
+  if (m === "automation" || m === "cursor") return "automation";
+  if (m === "both") return "both";
+  return "worker";
+}
+
 export default {
   async fetch(
     request: Request,
@@ -32,16 +41,23 @@ export default {
         service: "river-agent-doorbell",
         ok: true,
         dry_run: isDryRun(env),
-        reply_primary: "360dialog_mcp",
-        mcp_url: "https://mcp.360dialog.com/mcp",
+        reply_mode: replyMode(env),
+        reply_primary: "messaging_api",
+        river_mcp: "/mcp",
+        official_360dialog_mcp:
+          "https://mcp.360dialog.com/mcp (Hub-admin only — no customer send_message)",
+        messaging_api_configured: Boolean(env.D360_API_KEY),
         mode: "sell_only",
-        messaging_api_fallback: Boolean(env.D360_API_KEY),
         kv: env.RIVER_KV ? "bound" : "memory",
         sales: {
           contact_email: env.SALES_CONTACT_EMAIL,
           contact_phone: env.SALES_CONTACT_PHONE,
         },
       });
+    }
+
+    if (path === "/mcp") {
+      return handleMcp(request, env);
     }
 
     // 360dialog may GET for URL verification in some setups
@@ -109,25 +125,44 @@ async function processInbound(env: Env, message: InboundMessage): Promise<void> 
     session.profile_name = message.profile_name;
   }
 
+  const previousStage = session.stage;
   session.last_message_id = message.id;
   session = advanceStage(session, message.text);
   await saveSession(env, session);
 
-  const payload = buildWakePayload(env, message, session);
-  const wake = await wakeCursorAutomation(env, payload);
-  if (!wake.ok) {
-    console.error("wake failed", wake);
+  const mode = replyMode(env);
+
+  if (mode === "worker" || mode === "both") {
+    const text = buildSalesReply(env, session, message.text, previousStage);
+    const send = await sendTextMessage(env, message.wa_id, text);
+    if (!send.ok) {
+      console.error("worker sales reply failed", send);
+    } else {
+      console.log("worker sales reply", {
+        dry_run: send.dry_run,
+        to: message.wa_id,
+        stage: session.stage,
+      });
+    }
+  }
+
+  if (mode === "automation" || mode === "both") {
+    const payload = buildWakePayload(env, message, session);
+    const wake = await wakeCursorAutomation(env, payload);
+    if (!wake.ok) {
+      console.error("wake failed", wake);
+    }
   }
 }
 
-/** Optional Messaging API fallback — primary replies use 360dialog MCP send_message. */
+/** Messaging API send — also used by River MCP send_message and Automations. */
 async function handleSend(request: Request, env: Env): Promise<Response> {
   const expected = env.SEND_AUTH_TOKEN || env.CURSOR_API_KEY;
   if (!expected) {
     return json(
       {
         error: "send_auth_not_configured",
-        hint: "Fallback only. Prefer MCP send_message. Set SEND_AUTH_TOKEN or CURSOR_API_KEY for /send.",
+        hint: "Set SEND_AUTH_TOKEN or CURSOR_API_KEY for /send and /mcp.",
       },
       503,
     );

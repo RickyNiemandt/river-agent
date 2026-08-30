@@ -1,39 +1,33 @@
 # River Agent — setup (Ricky’s clicks)
 
-**Sales-only:** sell charmsystemsllc.com packages on WhatsApp. No Google Calendar booking in this version.
+**Sales-only:** sell charmsystemsllc.com packages on WhatsApp. No Google Calendar booking.
 
-**Primary:** 360dialog MCP OAuth sends/reads WhatsApp (`send_message`, etc.).
+**Send path:** 360dialog **Messaging API** (`D360_API_KEY`).  
+Official `https://mcp.360dialog.com/mcp` = Hub admin only — **not** for customer replies.
 
-## Path A (recommended for first live reply — no Cloudflare)
+## Path Direct (recommended first live reply)
 
-1. Connect 360dialog MCP (Desktop **and** Cloud Agents) — full clicks in [GO_LIVE.md](./GO_LIVE.md) Step 1  
-   URL: `https://mcp.360dialog.com/mcp` → OAuth with Hub email/password → confirm `send_message` etc.
-2. [cursor.com/automations](https://cursor.com/automations) → **New** → Webhook → paste `agent/AUTOMATION_PASTE.md` → enable **360dialog MCP only**
-3. Copy Automation webhook URL + API key
-4. 360dialog Hub → channel webhook:
-   - URL = Automation webhook URL
-   - Custom header: `Authorization` = `Bearer <API key>` (Hub supports custom headers)
-5. WhatsApp the business number → expect MCP `send_message` reply
+1. Hub → copy channel Messaging API key  
+2. Deploy Worker — [GO_LIVE.md](./GO_LIVE.md)  
+   - `wrangler secret put D360_API_KEY`  
+   - `DRY_RUN=false`, `REPLY_MODE=worker`  
+3. Hub webhook → `https://<worker>/webhook`  
+4. WhatsApp business number → expect Need → Timeline → Fit → package recommend
 
-Status-only Hub events: Automation ignores them (see paste prompt).
+## Optional — Automation + River MCP
 
-## Path B (optional Worker doorbell)
-
-Worker: inbound Hub webhook → wake Cursor only.  
-Messaging API `/send`: optional fallback — not required.
-
-1. After Automation exists, set Worker secrets `CURSOR_WEBHOOK_URL`, `CURSOR_API_KEY`
-2. Deploy Worker; Hub webhook → `https://<worker>/webhook` (do not dual-webhook with Path A)
-3. `DRY_RUN=false` → smoke test
+1. `wrangler secret put SEND_AUTH_TOKEN`  
+2. Cursor Automations MCP → URL `https://<worker>/mcp` + Bearer token  
+3. Paste `agent/AUTOMATION_PASTE.md` · enable River MCP  
+4. Worker: `REPLY_MODE=automation` + `CURSOR_WEBHOOK_URL` / `CURSOR_API_KEY`  
+5. Hub still points at Worker `/webhook`
 
 ```bash
 npm install
 npx wrangler kv namespace create RIVER_KV
 npx wrangler kv namespace create RIVER_KV --preview
 # paste ids into wrangler.jsonc
-npx wrangler secret put CURSOR_WEBHOOK_URL
-npx wrangler secret put CURSOR_API_KEY
+npx wrangler secret put D360_API_KEY
+npx wrangler secret put SEND_AUTH_TOKEN
 npm run deploy
 ```
-
-Full ordered checklist: [GO_LIVE.md](./GO_LIVE.md).

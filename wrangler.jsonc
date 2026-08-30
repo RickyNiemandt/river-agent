@@ -1,7 +1,6 @@
 /**
- * River Agent doorbell — inbound webhook → wake Cursor.
- * Primary WhatsApp: 360dialog MCP OAuth on Automation.
- * Optional D360_API_KEY for Worker /send fallback only.
+ * River Agent — WhatsApp sales (Path Direct Messaging API + River MCP).
+ * Official mcp.360dialog.com = Hub admin only. Chat send = D360_API_KEY.
  */
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
@@ -12,6 +11,7 @@
   "workers_dev": true,
   "vars": {
     "DRY_RUN": "true",
+    "REPLY_MODE": "worker",
     "D360_API_BASE": "https://waba-v2.360dialog.io",
     "RATE_LIMIT_MAX": "12",
     "RATE_LIMIT_WINDOW_SECONDS": "60",
