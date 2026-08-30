@@ -95,7 +95,7 @@ console.log("GET webhook", before.status, JSON.stringify(before.body));
 
 const set = await d360("POST", "/v1/configs/webhook", { url: webhookUrl });
 console.log("POST webhook", set.status, JSON.stringify(set.body));
-<if (!set.ok) {
+if (!set.ok) {
   die(`Failed to set webhook (HTTP ${set.status}). Check D360_API_KEY.`);
 }
 
@@ -103,7 +103,7 @@ const after = await d360("GET", "/v1/configs/webhook");
 console.log("GET webhook after", after.status, JSON.stringify(after.body));
 
 const smokeTo = (process.env.SMOKE_TO || "").replace(/\D/g, "");
-<if (smokeTo) {
+if (smokeTo) {
   const send = await d360("POST", "/messages", {
     messaging_product: "whatsapp",
     recipient_type: "individual",
