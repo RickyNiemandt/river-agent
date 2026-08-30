@@ -1,0 +1,24 @@
+/**
+ * Temporary Cloudflare preview config (no KV binding — uses in-memory store).
+ * Production: use wrangler.jsonc with real RIVER_KV ids.
+ */
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "river-agent-doorbell",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-08-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "vars": {
+    "DRY_RUN": "true",
+    "D360_API_BASE": "https://waba-v2.360dialog.io",
+    "RATE_LIMIT_MAX": "12",
+    "RATE_LIMIT_WINDOW_SECONDS": "60",
+    "DEDUPE_TTL_SECONDS": "86400",
+    "SESSION_TTL_SECONDS": "604800",
+    "BRAND_NAME": "EcoLife Automation / Charm Systems",
+    "PUBLIC_SITE": "https://charmsystemsllc.com/",
+    "SALES_CONTACT_EMAIL": "ceo@charmsystemsllc.com",
+    "SALES_CONTACT_PHONE": "+27726064522"
+  }
+}
