@@ -8,6 +8,8 @@
     "deploy": "wrangler deploy",
     "types": "wrangler types",
     "check": "tsc --noEmit",
+    "local": "node scripts/local-server.mjs",
+    "tunnel": "node scripts/local-tunnel.mjs",
     "test:webhook": "node scripts/simulate-webhook.mjs"
   },
   "devDependencies": {

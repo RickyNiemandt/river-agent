@@ -38,26 +38,35 @@ git pull --ff-only origin main
 
 ---
 
-## Script (same result)
-
-From a copy of this repo:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\init-local-windows.ps1
-```
-
-Or double-click `scripts\init-local-windows.cmd`.
-
-Override dest: `$env:RIVER_DEST = "D:\work\RiverBot"` then run the script.
-
----
-
-## After clone
+## After clone — local go-live (no Cloudflare login)
 
 ```powershell
 cd C:\Ecolife\RiverBot
-npm ci
-npm run check
+copy .dev.vars.example .dev.vars
+notepad .dev.vars
 ```
 
-Go-live (Messaging API): [GO_LIVE.md](./GO_LIVE.md).
+In `.dev.vars` set:
+
+```
+DRY_RUN=false
+D360_API_KEY=<Hub channel Messaging API key>
+```
+
+Terminal 1:
+
+```powershell
+npm run local
+```
+
+Terminal 2 (public HTTPS for Hub):
+
+```powershell
+npm run tunnel
+```
+
+Copy the `https://….trycloudflare.com` URL. Hub webhook = `https://….trycloudflare.com/webhook`
+
+WhatsApp the business number: `What packages do you sell?`
+
+Or double-click `scripts\start-local.cmd` for terminal 1.

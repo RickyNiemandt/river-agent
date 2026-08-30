@@ -1,4 +1,5 @@
-# Optional Messaging API key (channel) — required for Path Direct go-live
+# Path Direct / local server — set DRY_RUN=false and paste channel key to send WhatsApp
+DRY_RUN=true
 D360_API_KEY=
 D360_PHONE_NUMBER_ID=
 
