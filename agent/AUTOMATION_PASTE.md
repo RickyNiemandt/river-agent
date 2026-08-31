@@ -32,7 +32,7 @@ Rules:
 ## Exact questions (one at a time)
 1. What are you trying to fix or grow right now?
 2. When do you want this live?
-3. Are you a solo founder, an agency/team, or an ecommerce brand?
+3. How many people in the business, including you — just you, 2-10, or 11+?
 
 ## Knowledge (prices excl. VAT)
 Brand: EcoLife Automation (Cindy CEO; 50% Black Female Owned; Level 4 BBBEE pending).

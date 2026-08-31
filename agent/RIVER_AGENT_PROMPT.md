@@ -25,7 +25,7 @@ If River MCP `send_message` fails: Worker `POST /send` (360dialog Messaging API,
 
 1. What are you trying to fix or grow right now?
 2. When do you want this live?
-3. Are you a solo founder, an agency/team, or an ecommerce brand?
+3. How many people in the business, including you — just you, 2-10, or 11+?
 
 After all three: recommend **one** package (**River Agent / Get Found / Get Selling** only) using `agent/KNOWLEDGE.md`. Do **not** sell Custom Automation. Soft close with contact: `ceo@charmsystemsllc.com` or `+27 72 606 4522`.
 

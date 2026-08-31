@@ -79,10 +79,10 @@ Shopify or WooCommerce. PayFast / Yoco (or equivalent). Platform + gateway fees 
 
 | Lead says… | Steer toward |
 | --- | --- |
-| Losing leads / WhatsApp / qualify / book calls | **River Agent** (Starter vs Growth) |
-| Invisible online / LinkedIn / need leads | **Get Found** |
-| Need an online store / checkout / PayFast | **Get Selling** |
-| PDF / workflow / glue (this bot does not sell Custom Automation) | **River Agent** Growth |
+| Losing leads / WhatsApp / qualify / book calls | **River Agent** (Starter if 1 person, Growth if 2+) |
+| Invisible online / LinkedIn / need leads | **Get Found** (Starter / Growth / Scale by headcount) |
+| Need an online store / checkout / PayFast | **Get Selling** (Starter / Growth / Scale by headcount) |
+| PDF / workflow / glue (this bot does not sell Custom Automation) | **River Agent** (size by headcount) |
 | Leads + store | Get Found + Get Selling |
 
 ---
@@ -91,7 +91,7 @@ Shopify or WooCommerce. PayFast / Yoco (or equivalent). Platform + gateway fees 
 
 1. **Need:** What are you trying to fix or grow right now?
 2. **Timeline:** When do you want this live?
-3. **Fit:** Are you a solo founder, an agency/team, or an ecommerce brand?
+3. **Fit:** How many people in the business, including you — just you, 2-10, or 11+?
 
 Then recommend **one** primary package with price (excl. VAT) and soft-close via `ceo@charmsystemsllc.com` or `+27 72 606 4522`. Do **not** offer calendar slots in this agent version.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Qualify Path Local: Need → Timeline → Fit, three products, Hi reset, no Custom Automation.
+ * Qualify Path Local: headcount Fit, Hi/rest reset, three products, no Custom Automation.
  *
  *   PORT=8794 DRY_RUN=true node scripts/local-server.mjs
  *   WEBHOOK_URL=http://127.0.0.1:8794/webhook node scripts/test-qualify.mjs
@@ -60,50 +60,59 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-const shop = `27${Date.now().toString().slice(-9)}`;
-let last = await send(shop, "Shop Lead", "Hi");
-assert(preview(last).includes("Get Found"), preview(last));
-assert(preview(last).includes("What are you trying"), preview(last));
+async function runPass(label) {
+  const shop = `27${Date.now().toString().slice(-8)}${label.length}`;
+  let last = await send(shop, "Shop Lead", "Hi");
+  assert(preview(last).includes("Howzit"), preview(last));
+  assert(preview(last).includes("Get Found"), preview(last));
+  assert(preview(last).includes("Hi or rest"), preview(last));
 
-last = await send(shop, "Shop Lead", "I need a Shopify store with PayFast");
-assert(last.stage === "timeline", `stage ${last.stage}`);
+  last = await send(shop, "Shop Lead", "I need a Shopify store with PayFast");
+  assert(last.stage === "timeline", `${label} stage ${last.stage}`);
 
-last = await send(shop, "Shop Lead", "this week");
-assert(last.stage === "fit", `stage ${last.stage}`);
+  last = await send(shop, "Shop Lead", "this week");
+  assert(last.stage === "fit", `${label} stage ${last.stage}`);
+  assert(preview(last).includes("just you"), preview(last));
 
-last = await send(shop, "Shop Lead", "ecommerce brand");
-assert(last.stage === "recommend", `stage ${last.stage}`);
-assert(preview(last).includes("Get Selling"), preview(last));
-assert(!preview(last).includes("Custom Automation"), preview(last));
-assert(preview(last).includes("hot enquiry"), preview(last));
+  last = await send(shop, "Shop Lead", "11+");
+  assert(last.stage === "recommend", `${label} stage ${last.stage}`);
+  assert(preview(last).includes("Get Selling"), preview(last));
+  assert(preview(last).includes("Scale Store"), preview(last));
+  assert(!preview(last).includes("Custom Automation"), preview(last));
+  assert(preview(last).includes("hot enquiry"), preview(last));
 
-last = await send(shop, "Shop Lead", "Hi");
-assert(last.stage === "need", `reset stage ${last.stage}`);
-assert(preview(last).includes("What are you trying"), preview(last));
+  last = await send(shop, "Shop Lead", "rest");
+  assert(last.stage === "need", `${label} rest stage ${last.stage}`);
+  assert(preview(last).includes("What are you trying"), preview(last));
 
-const pdf = `28${Date.now().toString().slice(-9)}`;
-await send(pdf, "Pdf Lead", "Hi");
-await send(pdf, "Pdf Lead", "PDF workflow automation glue");
-await send(pdf, "Pdf Lead", "this month");
-last = await send(pdf, "Pdf Lead", "agency team");
-assert(preview(last).includes("River Agent"), preview(last));
-assert(!preview(last).includes("Custom Automation"), preview(last));
-assert(!preview(last).includes("custom-automation"), preview(last));
+  const found = `28${Date.now().toString().slice(-8)}${label.length}`;
+  await send(found, "LinkedIn Lead", "Hi");
+  await send(found, "LinkedIn Lead", "Invisible on LinkedIn, need leads");
+  await send(found, "LinkedIn Lead", "later this year");
+  last = await send(found, "LinkedIn Lead", "just me");
+  assert(preview(last).includes("Get Found"), preview(last));
+  assert(preview(last).includes("Starter"), preview(last));
 
-const found = `29${Date.now().toString().slice(-9)}`;
-await send(found, "LinkedIn Lead", "Hi");
-await send(found, "LinkedIn Lead", "Invisible on LinkedIn, need leads");
-await send(found, "LinkedIn Lead", "later this year");
-last = await send(found, "LinkedIn Lead", "solo founder");
-assert(preview(last).includes("Get Found"), preview(last));
+  const river = `29${Date.now().toString().slice(-8)}${label.length}`;
+  await send(river, "River Lead", "Hi");
+  await send(river, "River Lead", "WhatsApp bot to qualify leads");
+  await send(river, "River Lead", "this month");
+  last = await send(river, "River Lead", "2-10");
+  assert(preview(last).includes("River Agent"), preview(last));
+  assert(preview(last).includes("Growth Bot"), preview(last));
+  assert(!preview(last).includes("custom-automation"), preview(last));
+
+  return { shop, found, river };
+}
+
+const first = await runPass("a");
+const second = await runPass("b");
 
 const health = await fetch(healthUrl).then((r) => r.json());
-assert(health.groq_configured === false || typeof health.groq_configured === "boolean", "groq flag");
 assert(JSON.stringify(health.products).includes("Get Selling"), "products");
 
 console.log("test-qualify ok", {
-  shop: shop,
-  last_shop_reset: "need",
+  first,
+  second,
   products: health.products,
-  groq_configured: health.groq_configured,
 });
