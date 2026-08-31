@@ -2,8 +2,9 @@ import { wakeCursorAutomation, buildWakePayload } from "./cursor";
 import { sendTextMessage } from "./d360";
 import { isDuplicate } from "./dedupe";
 import { handleMcp } from "./mcp";
+import { maybeNotifyHotLead } from "./lead-notify";
 import { checkRateLimit } from "./rate-limit";
-import { buildSalesReply } from "./sales-reply";
+import { applyScore, buildSalesReply, shouldResetSession } from "./sales-reply";
 import {
   advanceStage,
   createSession,
@@ -47,7 +48,9 @@ export default {
         official_360dialog_mcp:
           "https://mcp.360dialog.com/mcp (Hub-admin only — no customer send_message)",
         messaging_api_configured: Boolean(env.D360_API_KEY),
+        groq_configured: Boolean(env.GROQ_API_KEY),
         mode: "sell_only",
+        products: ["Get Found", "Get Selling", "River Agent"],
         kv: env.RIVER_KV ? "bound" : "memory",
         sales: {
           contact_email: env.SALES_CONTACT_EMAIL,
@@ -125,15 +128,29 @@ async function processInbound(env: Env, message: InboundMessage): Promise<void> 
     session.profile_name = message.profile_name;
   }
 
+  if (shouldResetSession(session, message.text)) {
+    session = createSession(
+      message.wa_id,
+      message.profile_name || session.profile_name,
+    );
+  }
+
   const previousStage = session.stage;
   session.last_message_id = message.id;
   session = advanceStage(session, message.text);
+
+  if (previousStage === "fit" && session.stage === "recommend") {
+    session = applyScore(session);
+    const notified = await maybeNotifyHotLead(env, session);
+    if (notified) session.hot_notified = true;
+  }
+
   await saveSession(env, session);
 
   const mode = replyMode(env);
 
   if (mode === "worker" || mode === "both") {
-    const text = buildSalesReply(env, session, message.text, previousStage);
+    const text = await buildSalesReply(env, session, message.text, previousStage);
     const send = await sendTextMessage(env, message.wa_id, text);
     if (!send.ok) {
       console.error("worker sales reply failed", send);
@@ -142,6 +159,8 @@ async function processInbound(env: Env, message: InboundMessage): Promise<void> 
         dry_run: send.dry_run,
         to: message.wa_id,
         stage: session.stage,
+        score: session.score,
+        temperature: session.temperature,
       });
     }
   }

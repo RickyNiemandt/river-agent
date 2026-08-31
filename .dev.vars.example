@@ -6,6 +6,13 @@ D360_PHONE_NUMBER_ID=
 # Bearer for River MCP /mcp and POST /send
 SEND_AUTH_TOKEN=dev-send-token
 
+# Groq follow-ups after Fit (optional). Set via wrangler secret put GROQ_API_KEY on the Worker.
+GROQ_API_KEY=
+
+# Ricky's WhatsApp for hot-lead cards (digits)
+HOT_LEAD_WA=27727710400
+
+
 # Optional — only if REPLY_MODE=automation
 CURSOR_WEBHOOK_URL=
 CURSOR_API_KEY=
