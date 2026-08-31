@@ -12,6 +12,7 @@
     "tunnel": "node scripts/local-tunnel.mjs",
     "go-live": "node scripts/go-live.mjs",
     "watch-go-live": "node scripts/watch-go-live.mjs",
+    "watch-tunnel": "node scripts/watch-tunnel.mjs",
     "test:webhook": "node scripts/simulate-webhook.mjs"
   },
   "devDependencies": {
