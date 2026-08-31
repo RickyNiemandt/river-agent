@@ -10,7 +10,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "vars": {
-    "DRY_RUN": "true",
+    "DRY_RUN": "false",
     "REPLY_MODE": "worker",
     "D360_API_BASE": "https://waba-v2.360dialog.io",
     "RATE_LIMIT_MAX": "12",
@@ -25,7 +25,7 @@
   "kv_namespaces": [
     {
       "binding": "RIVER_KV",
-      "id": "00000000000000000000000000000000",
+      "id": "68a570e7d5474f3eb804f904c8f1c208",
       "preview_id": "00000000000000000000000000000000"
     }
   ]
