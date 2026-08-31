@@ -108,11 +108,11 @@ function isDryRun() {
 const Q_NEED = "What are you trying to fix or grow right now?";
 const Q_TIMELINE = "When do you want this live?";
 const Q_FIT =
-  "Are you a solo founder, an agency/team, or an ecommerce brand?";
+  "How many people in the business, including you — just you, 2-10, or 11+?";
 const GREETING_RE =
   /^(hi+|hie+|hello|hallo|hey+|howz\s*it|howzit|good\s*(morning|afternoon|evening)|sawubona|hola|what'?s\s*up|whats\s*up|test|hi\s*again)\b/i;
 const RESET_RE =
-  /^(reset|start\s*over|restart|begin\s*again|start\s*again)\b/i;
+  /^(reset|rest|reste|start\s*over|restart|begin\s*again|start\s*again)\b/i;
 
 function normalizeChat(text) {
   if (!text) return "";
@@ -148,78 +148,112 @@ function shouldResetSession(session, text) {
   );
 }
 
-function recommendPackage(session) {
-  const blob = `${session.fit || ""} ${session.need || ""}`.toLowerCase();
+function parseHeadcount(text) {
+  const t = normalizeChat(text);
+  if (!t) return "2-10";
+  if (/\b(just\s+me|only\s+me|myself|solo|just\s+you|one\s+person|on\s+my\s+own)\b/.test(t))
+    return "1";
+  if (/\b(big\s+team|large\s+team|corporate|50\+|hundred)\b/.test(t)) return "11+";
+  if (/\b(small\s+team|handful|few\s+of\s+us|couple)\b/.test(t)) return "2-10";
+  if (/\b11\s*\+|11\s*plus|eleven\s*plus\b/.test(t)) return "11+";
+  const nums = t.match(/\d+/g)?.map((n) => Number(n)) ?? [];
+  if (nums.length >= 2) {
+    const hi = Math.max(...nums);
+    if (hi >= 11) return "11+";
+    if (hi <= 1) return "1";
+    return "2-10";
+  }
+  if (nums.length === 1) {
+    const n = nums[0];
+    if (n <= 1) return "1";
+    if (n >= 11) return "11+";
+    return "2-10";
+  }
+  return "2-10";
+}
+
+function pickProduct(session) {
+  const blob = String(session.need || "").toLowerCase();
   if (
     /shop|store|ecommerce|e-?commerce|woocommerce|shopify|payfast|yoco|catalogue|catalog/.test(
       blob,
     )
-  ) {
-    return {
-      name: "Get Selling — Growth Store",
-      price: "R38,000 build + R5,900/mo excl. VAT",
-      why: "Shopify/Woo store with PayFast/Yoco — ~200 products, best value for most brands",
-      url: "https://charmsystemsllc.com/get-selling",
-    };
-  }
+  )
+    return "selling";
   if (
     /linkedin|invisible|get\s*found|outreach|website|leads?\s*online|need\s*leads/.test(
       blob,
     )
-  ) {
-    return {
+  )
+    return "found";
+  return "river";
+}
+
+const CATALOG = {
+  selling: {
+    1: {
+      name: "Get Selling — Starter Store",
+      price: "R18,000 build + R2,900/mo excl. VAT",
+      why: "About 50 products — right size when it is just you running the shop",
+      url: "https://charmsystemsllc.com/get-selling",
+    },
+    "2-10": {
+      name: "Get Selling — Growth Store",
+      price: "R38,000 build + R5,900/mo excl. VAT",
+      why: "About 200 products, shipping and policies — fits a small working team",
+      url: "https://charmsystemsllc.com/get-selling",
+    },
+    "11+": {
+      name: "Get Selling — Scale Store",
+      price: "From R65,000 build + R11,900/mo excl. VAT",
+      why: "Bigger catalogue and stock/accounting handoffs — built for a larger operation",
+      url: "https://charmsystemsllc.com/get-selling",
+    },
+  },
+  found: {
+    1: {
+      name: "Get Found — Starter",
+      price: "R4,500/mo excl. VAT",
+      why: "Site plus 8 LinkedIn posts a month — enough when you are a one-person shop",
+      url: "https://charmsystemsllc.com/get-found",
+    },
+    "2-10": {
       name: "Get Found — Growth",
       price: "R9,500/mo excl. VAT",
-      why: "Site + LinkedIn engine with outreach DMs and a lead dashboard",
+      why: "Outreach DMs and a lead dashboard — the usual fit for a 2-10 person team",
       url: "https://charmsystemsllc.com/get-found",
-    };
-  }
-  if (
-    /pdf|automation|workflow|spreadsheet|custom\s*automation|ecolifeos|integrate/.test(
-      blob,
-    )
-  ) {
-    return {
-      name: "River Agent — Growth Bot",
-      price: "R9,999/mo excl. VAT",
-      why: "WhatsApp sales AI that qualifies and routes — we sell Get Found, Get Selling, and River Agent from this number",
-      url: "https://charmsystemsllc.com/",
-    };
-  }
-  if (
-    /agency|team|multi|packages|routing|dashboard|growth\s*bot|whatsapp|qualify|bot/.test(
-      blob,
-    )
-  ) {
-    if (/agency|team|multi/.test(blob)) {
-      return {
-        name: "River Agent — Growth Bot",
-        price: "R9,999/mo excl. VAT",
-        why: "Best value for agencies / multi-package sellers — smart routing, scoring, priority support",
-        url: "https://charmsystemsllc.com/",
-      };
-    }
-    return {
+    },
+    "11+": {
+      name: "Get Found — Scale",
+      price: "R18,000/mo excl. VAT",
+      why: "Heavier outreach plus a dedicated AM — sized for 11+ people",
+      url: "https://charmsystemsllc.com/get-found",
+    },
+  },
+  river: {
+    1: {
       name: "River Agent — Starter Bot",
       price: "R5,500/mo excl. VAT",
-      why: "WhatsApp sales AI for solo founders and single-service businesses — qualify + steer to a package",
+      why: "One WhatsApp sales bot — qualify and steer, built for a solo operator",
       url: "https://charmsystemsllc.com/",
-    };
-  }
-  if (/agency|team|multi/.test((session.fit || "").toLowerCase())) {
-    return {
+    },
+    "2-10": {
       name: "River Agent — Growth Bot",
       price: "R9,999/mo excl. VAT",
-      why: "Best value for agencies / multi-package sellers — smart routing, scoring, priority support",
+      why: "Team routing and scoring — the River line for a small team (2-10)",
       url: "https://charmsystemsllc.com/",
-    };
-  }
-  return {
-    name: "River Agent — Starter Bot",
-    price: "R5,500/mo excl. VAT",
-    why: "WhatsApp sales AI for solo founders and single-service businesses — qualify + steer to a package",
-    url: "https://charmsystemsllc.com/",
-  };
+    },
+    "11+": {
+      name: "River Agent — Growth Bot",
+      price: "R9,999/mo excl. VAT",
+      why: "Team routing and scoring — River has two tiers on the site; Growth is the 11+ fit",
+      url: "https://charmsystemsllc.com/",
+    },
+  },
+};
+
+function recommendPackage(session) {
+  return CATALOG[pickProduct(session)][parseHeadcount(session.fit)];
 }
 
 function scoreLead(session) {
@@ -235,18 +269,12 @@ function scoreLead(session) {
     score += 3;
   else if (timeline.trim()) score += 1;
 
-  const fit = session.fit || "";
-  if (
-    /\b(agency|team|we\s+are|our\s+(team|agency|company)|ecommerce|e-?commerce|brand|store)\b/i.test(
-      fit,
-    )
-  )
-    score += 3;
-  else if (
-    /\b(solo|just\s+me|myself|founder|coach|freelancer)\b/i.test(fit) ||
-    fit.trim()
-  )
-    score += 2;
+  if (String(session.fit || "").trim()) {
+    const band = parseHeadcount(session.fit);
+    if (band === "11+") score += 3;
+    else if (band === "2-10") score += 2;
+    else score += 1;
+  }
 
   const need = session.need || "";
   if (
@@ -403,7 +431,7 @@ async function buildSalesReply(session, inboundText, previousStage) {
   const phone = env.SALES_CONTACT_PHONE;
   const site = env.PUBLIC_SITE;
   const name = session.profile_name?.split(/\s+/)[0];
-  const hi = name ? `Hi ${name}` : "Hi";
+  const howzit = name ? `Howzit ${name}` : "Howzit";
 
   if (
     session.message_count <= 1 ||
@@ -411,7 +439,7 @@ async function buildSalesReply(session, inboundText, previousStage) {
       session.stage === "need" &&
       (isGreetingOnly(inboundText) || isResetIntent(inboundText)))
   ) {
-    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\nSay reset anytime to start over.\n\n${Q_NEED}`;
+    return `${howzit} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\nSay Hi or rest anytime to start over.\n\n${Q_NEED}`;
   }
   if (session.stage === "timeline" && previousStage === "need") {
     return `Got it.\n\n${Q_TIMELINE}`;
@@ -424,18 +452,18 @@ async function buildSalesReply(session, inboundText, previousStage) {
     const score = session.score ?? scoreLead(session).score;
     const temperature = session.temperature ?? scoreLead(session).temperature;
     return (
-      `Based on what you shared, I'd steer you to *${rec.name}* — ${rec.price}.\n\n` +
+      `Sharp — based on headcount I'd steer you to *${rec.name}* — ${rec.price}.\n\n` +
       `${rec.why}\n${rec.url}\n\n` +
       `I'll treat this as a ${temperature} enquiry (${score}/10).\n\n` +
       `Soft close: email ${email} or WhatsApp ${phone} and we'll lock scope.\n\n` +
-      `Want me to compare Starter vs Growth on that line?`
+      `Want me to compare the next size up on that line?`
     );
   }
   if (session.stage === "need") return Q_NEED;
   if (session.stage === "timeline") return Q_TIMELINE;
   if (session.stage === "fit") return Q_FIT;
   if (isGreetingOnly(inboundText) || isResetIntent(inboundText)) {
-    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\nSay reset anytime to start over.\n\n${Q_NEED}`;
+    return `${howzit} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\nSay Hi or rest anytime to start over.\n\n${Q_NEED}`;
   }
   const groq = await groqFollowUp(session, inboundText);
   if (groq) return groq;
