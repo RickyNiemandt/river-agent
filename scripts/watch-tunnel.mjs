@@ -11,7 +11,7 @@
  *
  *   npm run watch-tunnel
  *
- * Env: PORT (default 8795), WATCH_TUNNEL_MS (default 45000)
+ * Env: PORT (default 8791), WATCH_TUNNEL_MS (default 45000)
  */
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -19,7 +19,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const PORT = process.env.PORT || "8795";
+const PORT = process.env.PORT || "8791";
 const LOCAL = `http://127.0.0.1:${PORT}`;
 const INTERVAL_MS = Number(process.env.WATCH_TUNNEL_MS || 45000);
 const STATE = resolve(ROOT, ".tunnel-url");
@@ -142,18 +142,26 @@ async function setHub(webhookUrl) {
 
 function killOldTunnels() {
   try {
-    spawn("pkill", ["-f", `cloudflared tunnel --url http://127.0.0.1:${PORT}`], {
-      stdio: "ignore",
-    });
+    if (process.platform === "win32") {
+      spawn("taskkill", ["/F", "/IM", "cloudflared.exe"], { stdio: "ignore" });
+    } else {
+      spawn(
+        "pkill",
+        ["-f", `cloudflared tunnel --url http://127.0.0.1:${PORT}`],
+        { stdio: "ignore" },
+      );
+    }
   } catch {
     /* ignore */
   }
 }
 
 function startCloudflared() {
+  const win = process.platform === "win32";
   return spawn("npx", ["--yes", "cloudflared", "tunnel", "--url", LOCAL], {
     cwd: ROOT,
     stdio: ["ignore", "pipe", "pipe"],
+    shell: win,
   });
 }
 
