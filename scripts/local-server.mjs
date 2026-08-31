@@ -110,31 +110,42 @@ const Q_TIMELINE = "When do you want this live?";
 const Q_FIT =
   "Are you a solo founder, an agency/team, or an ecommerce brand?";
 const GREETING_RE =
-  /^(hi|h+i+|hello|hey|howz?it|howzit|good\s*(morning|afternoon|evening)|sawubona|hola|whats?\s*up|test|hi\s*again)\b/i;
+  /^(hi+|hie+|hello|hallo|hey+|howz\s*it|howzit|good\s*(morning|afternoon|evening)|sawubona|hola|what'?s\s*up|whats\s*up|test|hi\s*again)\b/i;
 const RESET_RE =
   /^(reset|start\s*over|restart|begin\s*again|start\s*again)\b/i;
 
+function normalizeChat(text) {
+  if (!text) return "";
+  return String(text)
+    .normalize("NFKC")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/[*_~`]/g, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 function isGreetingOnly(text) {
   if (!text) return true;
-  const t = String(text).trim();
+  const t = normalizeChat(text);
   if (!t) return true;
-  return t.length <= 24 && GREETING_RE.test(t);
+  return t.length <= 48 && GREETING_RE.test(t);
 }
 
 function isResetIntent(text) {
   if (!text) return false;
-  return RESET_RE.test(String(text).trim());
+  return RESET_RE.test(normalizeChat(text));
 }
 
 function shouldResetSession(session, text) {
   if (isResetIntent(text)) return true;
-  if (
-    (session.stage === "recommend" || session.stage === "done") &&
-    isGreetingOnly(text)
-  ) {
-    return true;
-  }
-  return false;
+  if (!isGreetingOnly(text)) return false;
+  return (
+    session.stage !== "need" ||
+    Boolean(session.need) ||
+    (session.message_count ?? 0) > 0
+  );
 }
 
 function recommendPackage(session) {
@@ -400,7 +411,7 @@ async function buildSalesReply(session, inboundText, previousStage) {
       session.stage === "need" &&
       (isGreetingOnly(inboundText) || isResetIntent(inboundText)))
   ) {
-    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\n${Q_NEED}`;
+    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\nSay reset anytime to start over.\n\n${Q_NEED}`;
   }
   if (session.stage === "timeline" && previousStage === "need") {
     return `Got it.\n\n${Q_TIMELINE}`;
@@ -423,6 +434,9 @@ async function buildSalesReply(session, inboundText, previousStage) {
   if (session.stage === "need") return Q_NEED;
   if (session.stage === "timeline") return Q_TIMELINE;
   if (session.stage === "fit") return Q_FIT;
+  if (isGreetingOnly(inboundText) || isResetIntent(inboundText)) {
+    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\nSay reset anytime to start over.\n\n${Q_NEED}`;
+  }
   const groq = await groqFollowUp(session, inboundText);
   if (groq) return groq;
   const rec = recommendPackage(session);

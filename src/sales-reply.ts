@@ -7,11 +7,27 @@ const Q_TIMELINE = "When do you want this live?";
 const Q_FIT =
   "Are you a solo founder, an agency/team, or an ecommerce brand?";
 
+/** Worker build stamp — if WhatsApp still sounds old, Hub is not this Worker. */
+export const BUILD_ID = "2026-08-31-hi-reset";
+
 const GREETING_RE =
-  /^(hi|h+i+|hello|hey|howz?it|howzit|good\s*(morning|afternoon|evening)|sawubona|hola|whats?\s*up|test|hi\s*again)\b/i;
+  /^(hi+|hie+|hello|hallo|hey+|howz\s*it|howzit|good\s*(morning|afternoon|evening)|sawubona|hola|what'?s\s*up|whats\s*up|test|hi\s*again)\b/i;
 
 const RESET_RE =
   /^(reset|start\s*over|restart|begin\s*again|start\s*again)\b/i;
+
+/** Strip WhatsApp markup, emoji, and zero-width so "Hi 👋" still counts. */
+export function normalizeChat(text: string | undefined): string {
+  if (!text) return "";
+  return text
+    .normalize("NFKC")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/[*_~`]/g, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
 
 /**
  * Coarse package pick from fit + need. Only Get Found, Get Selling, River Agent.
@@ -110,30 +126,29 @@ export function applyScore(session: SessionState): SessionState {
 
 export function isGreetingOnly(text: string | undefined): boolean {
   if (!text) return true;
-  const t = text.trim();
+  const t = normalizeChat(text);
   if (!t) return true;
-  if (t.length <= 24 && GREETING_RE.test(t)) return true;
+  if (t.length <= 48 && GREETING_RE.test(t)) return true;
   return false;
 }
 
 export function isResetIntent(text: string | undefined): boolean {
   if (!text) return false;
-  return RESET_RE.test(text.trim());
+  return RESET_RE.test(normalizeChat(text));
 }
 
-/** Restart when they say reset, or Hi after we already recommended. */
+/** Hi / reset always starts Need again once a session has begun. */
 export function shouldResetSession(
   session: SessionState,
   text: string | undefined,
 ): boolean {
   if (isResetIntent(text)) return true;
-  if (
-    (session.stage === "recommend" || session.stage === "done") &&
-    isGreetingOnly(text)
-  ) {
-    return true;
-  }
-  return false;
+  if (!isGreetingOnly(text)) return false;
+  const started =
+    session.stage !== "need" ||
+    Boolean(session.need) ||
+    (session.message_count ?? 0) > 0;
+  return started;
 }
 
 function recommendBubble(env: Env, session: SessionState): string {
@@ -183,7 +198,7 @@ export async function buildSalesReply(
       session.stage === "need" &&
       (isGreetingOnly(inboundText) || isResetIntent(inboundText)))
   ) {
-    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\n${Q_NEED}`;
+    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\nSay reset anytime to start over.\n\n${Q_NEED}`;
   }
 
   if (session.stage === "timeline" && previousStage === "need") {
@@ -212,6 +227,9 @@ export async function buildSalesReply(
   }
 
   // Follow-up after recommend/done — Groq if keyed, else template closer
+  if (isGreetingOnly(inboundText) || isResetIntent(inboundText)) {
+    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\nSay reset anytime to start over.\n\n${Q_NEED}`;
+  }
   const groq = await groqFollowUp(env, session, inboundText);
   if (groq) return groq;
   return closerBubble(env, session);

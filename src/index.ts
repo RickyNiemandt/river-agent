@@ -4,7 +4,12 @@ import { isDuplicate } from "./dedupe";
 import { handleMcp } from "./mcp";
 import { maybeNotifyHotLead } from "./lead-notify";
 import { checkRateLimit } from "./rate-limit";
-import { applyScore, buildSalesReply, shouldResetSession } from "./sales-reply";
+import {
+  applyScore,
+  BUILD_ID,
+  buildSalesReply,
+  shouldResetSession,
+} from "./sales-reply";
 import {
   advanceStage,
   createSession,
@@ -49,6 +54,7 @@ export default {
           "https://mcp.360dialog.com/mcp (Hub-admin only — no customer send_message)",
         messaging_api_configured: Boolean(env.D360_API_KEY),
         groq_configured: Boolean(env.GROQ_API_KEY),
+        build: BUILD_ID,
         mode: "sell_only",
         products: ["Get Found", "Get Selling", "River Agent"],
         kv: env.RIVER_KV ? "bound" : "memory",
