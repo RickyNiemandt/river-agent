@@ -1,29 +1,20 @@
 # Go-live status (evidence-based)
 
-Updated: 2026-08-30 21:31 UTC (Cloud Agent)
+Updated: 2026-08-31 05:15 UTC (Cloud Agent)
 
 | Goal piece | Status | Evidence |
 | --- | --- | --- |
 | Reusable GitHub repo | **Published** | https://github.com/RickyNiemandt/river-agent |
 | Messaging API key | **Live** | `.dev.vars` (gitignored). `GET /health` → `messaging_api_configured: true`, `dry_run: false` |
-| Live inbound + reply | **Proven** | Three customer texts from `27727710400` (not the WABA line). Local send: `dry_run=false`, `ok=true`, stages timeline → fit → recommend |
-| Hub webhook | **Restored to HQ** | Primary set back to production after smoke so inbound survives when this session tunnel dies |
-
-## Proven inbound (this session)
-
-| at (UTC) | from | text | stage | send |
-| --- | --- | --- | --- | --- |
-| 21:26:42 | 27727710400 | What package do you sell | timeline | ok |
-| 21:27:13 | 27727710400 | I want to grow | fit | ok |
-| 21:29:57 | 27727710400 | Hello, do you have any whatsapp bots? | recommend | ok |
-
-Smoke send **to the WABA number itself** (`27726064522`) still 400 — Meta will not let a WABA message its own line. Customer send is the real proof.
+| Live inbound + reply | **Proven 2026-08-30** | Customer `27727710400` — four texts, send `ok` (last at 21:39 UTC: Custom Automation) |
+| Overnight gap | **Tunnel died** | `ridge-ensemble-seminar-hurricane.trycloudflare.com` stopped resolving. Hub still pointed there. New messages never reached River. |
+| Hub webhook | **Repointed 05:14 UTC** | Primary → `https://show-equal-gibson-nyc.trycloudflare.com/webhook` |
 
 ## Webhooks now
 
-- **Primary:** `https://hq.charmsystemsllc.com/webhook/whatsapp-in`
-- **Extra (multi-webhook `river`):** session tunnel (dies when this Cloud Agent stops)
+- **Primary:** `https://show-equal-gibson-nyc.trycloudflare.com/webhook`
+- **Extra `hq`:** `https://hq.charmsystemsllc.com/webhook/whatsapp-in`
 
-Durable laptop Path Local: [LOCAL_WINDOWS.md](./LOCAL_WINDOWS.md) (`C:\Ecolife\RiverBot`).
+Quick tunnels die when this Cloud Agent sleeps. Durable path: Path Local on `C:\Ecolife\RiverBot` ([LOCAL_WINDOWS.md](./LOCAL_WINDOWS.md)) or a named Cloudflare tunnel / Worker.
 
 Rotate the Messaging API key in Hub — it was pasted in chat.
