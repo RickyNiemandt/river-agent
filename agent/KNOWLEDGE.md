@@ -32,7 +32,7 @@ When unsure, prefer linking/pointing to the relevant page over inventing detail.
 | **Starter Bot** | **R5,500/mo** | Solo founders, coaches, single-service |
 | **Growth Bot** | **R9,999/mo** (Best value) | Agencies / multi-package sellers |
 
-**Growth extras:** multi-calendar (2 team members); smart routing across Get Found / Get Selling / Custom Automation; lead scoring + dashboard; priority WhatsApp support (1-hour); monthly strategy call + unlimited message tweaks.
+**Growth extras:** multi-calendar (2 team members); smart routing across Get Found / Get Selling / River Agent; lead scoring + dashboard; priority WhatsApp support (1-hour); monthly strategy call + unlimited message tweaks.
 
 **Guarantees:**
 - 14-day go-live: if not live within 14 days of locked scope → credit first month.
@@ -75,24 +75,6 @@ Shopify or WooCommerce. PayFast / Yoco (or equivalent). Platform + gateway fees 
 
 ---
 
-## Custom Automation
-
-**Page:** https://charmsystemsllc.com/custom-automation
-
-Scoped bots, WhatsApp handoffs, spreadsheet syncs, scheduled jobs. First automation live within **14 days of locked scope** or first month credited.
-
-### Monthly retainers
-
-| Package | Price | Scope |
-| --- | --- | --- |
-| **Starter Build** | **R3,900/mo** | 1 automation; up to 4h/mo; 6-month minimum |
-| **Growth Build** (most sold) | **R12,499/mo** | Up to 3 automations; up to 12h/mo; **EcoLifeOS free** |
-| **Scale Build** | **R28,000/mo** | Up to 6 automations; up to 28h/mo; EcoLifeOS free; deeper integrations |
-
-Once-off build + SLA options also exist on the page — if asked, point them to the page or `ceo@charmsystemsllc.com` rather than inventing a fixed once-off number.
-
----
-
 ## Routing cheat-sheet
 
 | Lead says… | Steer toward |
@@ -100,7 +82,7 @@ Once-off build + SLA options also exist on the page — if asked, point them to 
 | Losing leads / WhatsApp / qualify / book calls | **River Agent** (Starter vs Growth) |
 | Invisible online / LinkedIn / need leads | **Get Found** |
 | Need an online store / checkout / PayFast | **Get Selling** |
-| Weird workflow / PDFs / multi-tool glue | **Custom Automation** |
+| PDF / workflow / glue (this bot does not sell Custom Automation) | **River Agent** Growth |
 | Leads + store | Get Found + Get Selling |
 
 ---

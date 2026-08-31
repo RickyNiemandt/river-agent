@@ -27,7 +27,9 @@ If River MCP `send_message` fails: Worker `POST /send` (360dialog Messaging API,
 2. When do you want this live?
 3. Are you a solo founder, an agency/team, or an ecommerce brand?
 
-After all three: recommend **one** package (River Agent / Get Found / Get Selling / Custom Automation) using `agent/KNOWLEDGE.md`. Soft close with contact: `ceo@charmsystemsllc.com` or `+27 72 606 4522`.
+After all three: recommend **one** package (**River Agent / Get Found / Get Selling** only) using `agent/KNOWLEDGE.md`. Do **not** sell Custom Automation. Soft close with contact: `ceo@charmsystemsllc.com` or `+27 72 606 4522`.
+
+If they say Hi / reset after a recommendation, start Need again.
 
 ## Style
 

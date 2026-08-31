@@ -8,11 +8,34 @@ Repo: https://github.com/RickyNiemandt/river-agent
 
 ## Step 0 — GitHub repo
 
-Reusable template: **https://github.com/RickyNiemandt/river-agent**
+Reusable template: **https://github.com/RickyNiemandt/river-agent**  
+Windows operator checkout: **`C:\Ecolife\RiverBot`** — [LOCAL_WINDOWS.md](./LOCAL_WINDOWS.md)
+
+This Cloud Agent session has a live inbound URL (ephemeral): see [BLOCKERS.md](./BLOCKERS.md).
 
 ---
 
-## Path Direct (recommended — first live WhatsApp reply)
+## Path Local (recommended first live reply — `C:\Ecolife\RiverBot`)
+
+No Wrangler login. Node on the laptop + Cloudflare quick-tunnel.
+
+```
+WhatsApp → Hub webhook → tunnel → local Node (scripts/local-server.mjs)
+                → qualify Need→Timeline→Fit → Messaging API send
+```
+
+1. Clone per [LOCAL_WINDOWS.md](./LOCAL_WINDOWS.md)  
+2. Hub → copy channel **Messaging API key** (`D360-API-KEY`)  
+3. In `C:\Ecolife\RiverBot\.dev.vars`: `DRY_RUN=false` + `D360_API_KEY=…`  
+4. `npm run local`  
+5. Second terminal: `npm run tunnel` → copy `https://….trycloudflare.com`  
+6. Hub webhook URL = that host + `/webhook`  
+   **or** with key in `.dev.vars`: `npm run go-live` (sets `POST /v1/configs/webhook`)  
+7. WhatsApp **Hi** — Need → Timeline → Fit. After a rec, **Hi** or **reset** starts over. This agent sells **Get Found / Get Selling / River Agent** only.
+
+---
+
+## Path Direct (Cloudflare Worker)
 
 ```
 WhatsApp → 360dialog Hub webhook → Cloudflare Worker
@@ -35,6 +58,8 @@ npx wrangler kv namespace create RIVER_KV
 npx wrangler kv namespace create RIVER_KV --preview
 # paste ids into wrangler.jsonc
 npx wrangler secret put D360_API_KEY
+# optional Groq follow-ups after Fit (copy key into the terminal from Drive — do not paste into git):
+npx wrangler secret put GROQ_API_KEY
 # optional shared bearer for /mcp and /send:
 npx wrangler secret put SEND_AUTH_TOKEN
 ```
@@ -57,9 +82,7 @@ Hub → channel → Webhook URL = `https://<worker>/webhook`
 
 ### 4) Smoke test
 
-WhatsApp the business number: `What packages do you sell?`
-
-**Expect:** River Agent greets, asks Need → Timeline → Fit one at a time, then recommends one site package with price excl. VAT and soft-closes via `ceo@charmsystemsllc.com` / `+27 72 606 4522`.
+WhatsApp **Hi**. Expect Need → Timeline → Fit, then **one** of Get Found / Get Selling / River Agent (not Custom Automation) with a hot/warm/cold score. After the rec, **Hi** or **reset** starts Need again. Hot leads (≥7) WhatsApp a card to Ricky (`27727710400`).
 
 ---
 
