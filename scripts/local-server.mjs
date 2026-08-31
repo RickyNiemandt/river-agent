@@ -50,6 +50,8 @@ const env = {
   SALES_CONTACT_PHONE: "+27726064522",
   PUBLIC_SITE: "https://charmsystemsllc.com/",
   BRAND_NAME: "EcoLife Automation / Charm Systems",
+  GROQ_API_KEY: "",
+  HOT_LEAD_WA: "27727710400",
 };
 
 function refreshEnv() {
@@ -57,7 +59,7 @@ function refreshEnv() {
     ...loadDotVars(resolve(ROOT, ".env")),
     ...loadDotVars(resolve(ROOT, ".dev.vars")),
   };
-  env.DRY_RUN = fileEnv.DRY_RUN ?? process.env.DRY_RUN ?? "true";
+  env.DRY_RUN = process.env.DRY_RUN ?? fileEnv.DRY_RUN ?? "true";
   env.D360_API_KEY = (
     process.env.D360_API_KEY ||
     fileEnv.D360_API_KEY ||
@@ -85,6 +87,15 @@ function refreshEnv() {
     process.env.BRAND_NAME ??
     fileEnv.BRAND_NAME ??
     "EcoLife Automation / Charm Systems";
+  env.GROQ_API_KEY = (
+    process.env.GROQ_API_KEY ||
+    fileEnv.GROQ_API_KEY ||
+    ""
+  ).trim();
+  env.HOT_LEAD_WA =
+    process.env.HOT_LEAD_WA ??
+    fileEnv.HOT_LEAD_WA ??
+    "27727710400";
 }
 
 refreshEnv();
@@ -99,13 +110,31 @@ const Q_TIMELINE = "When do you want this live?";
 const Q_FIT =
   "Are you a solo founder, an agency/team, or an ecommerce brand?";
 const GREETING_RE =
-  /^(hi|h+i+|hello|hey|howz?it|howzit|good\s*(morning|afternoon|evening)|sawubona|hola|whats?\s*up|test)\b/i;
+  /^(hi|h+i+|hello|hey|howz?it|howzit|good\s*(morning|afternoon|evening)|sawubona|hola|whats?\s*up|test|hi\s*again)\b/i;
+const RESET_RE =
+  /^(reset|start\s*over|restart|begin\s*again|start\s*again)\b/i;
 
 function isGreetingOnly(text) {
   if (!text) return true;
   const t = String(text).trim();
   if (!t) return true;
   return t.length <= 24 && GREETING_RE.test(t);
+}
+
+function isResetIntent(text) {
+  if (!text) return false;
+  return RESET_RE.test(String(text).trim());
+}
+
+function shouldResetSession(session, text) {
+  if (isResetIntent(text)) return true;
+  if (
+    (session.stage === "recommend" || session.stage === "done") &&
+    isGreetingOnly(text)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function recommendPackage(session) {
@@ -123,7 +152,7 @@ function recommendPackage(session) {
     };
   }
   if (
-    /linkedin|invisible|get\s*found|outreach|website\s*and\s*linkedin/.test(
+    /linkedin|invisible|get\s*found|outreach|website|leads?\s*online|need\s*leads/.test(
       blob,
     )
   ) {
@@ -135,18 +164,38 @@ function recommendPackage(session) {
     };
   }
   if (
-    /pdf|automation|workflow|spreadsheet|custom|bot\s*build|ecolifeos|integrate/.test(
+    /pdf|automation|workflow|spreadsheet|custom\s*automation|ecolifeos|integrate/.test(
       blob,
     )
   ) {
     return {
-      name: "Custom Automation — Growth Build",
-      price: "R12,499/mo excl. VAT",
-      why: "Up to 3 automations, 12h/mo, EcoLifeOS included — first automation live in 14 days of locked scope",
-      url: "https://charmsystemsllc.com/custom-automation",
+      name: "River Agent — Growth Bot",
+      price: "R9,999/mo excl. VAT",
+      why: "WhatsApp sales AI that qualifies and routes — we sell Get Found, Get Selling, and River Agent from this number",
+      url: "https://charmsystemsllc.com/",
     };
   }
-  if (/agency|team|multi|packages|routing|dashboard|growth\s*bot/.test(blob)) {
+  if (
+    /agency|team|multi|packages|routing|dashboard|growth\s*bot|whatsapp|qualify|bot/.test(
+      blob,
+    )
+  ) {
+    if (/agency|team|multi/.test(blob)) {
+      return {
+        name: "River Agent — Growth Bot",
+        price: "R9,999/mo excl. VAT",
+        why: "Best value for agencies / multi-package sellers — smart routing, scoring, priority support",
+        url: "https://charmsystemsllc.com/",
+      };
+    }
+    return {
+      name: "River Agent — Starter Bot",
+      price: "R5,500/mo excl. VAT",
+      why: "WhatsApp sales AI for solo founders and single-service businesses — qualify + steer to a package",
+      url: "https://charmsystemsllc.com/",
+    };
+  }
+  if (/agency|team|multi/.test((session.fit || "").toLowerCase())) {
     return {
       name: "River Agent — Growth Bot",
       price: "R9,999/mo excl. VAT",
@@ -160,6 +209,144 @@ function recommendPackage(session) {
     why: "WhatsApp sales AI for solo founders and single-service businesses — qualify + steer to a package",
     url: "https://charmsystemsllc.com/",
   };
+}
+
+function scoreLead(session) {
+  let score = 0;
+  const timeline = session.timeline || "";
+  if (/\b(now|asap|immediately|this\s+week|today|urgent|as\s+soon)\b/i.test(timeline))
+    score += 4;
+  else if (
+    /\b(this\s+month|few\s+weeks|2\s*weeks|two\s+weeks|next\s+month|30\s*days)\b/i.test(
+      timeline,
+    )
+  )
+    score += 3;
+  else if (timeline.trim()) score += 1;
+
+  const fit = session.fit || "";
+  if (
+    /\b(agency|team|we\s+are|our\s+(team|agency|company)|ecommerce|e-?commerce|brand|store)\b/i.test(
+      fit,
+    )
+  )
+    score += 3;
+  else if (
+    /\b(solo|just\s+me|myself|founder|coach|freelancer)\b/i.test(fit) ||
+    fit.trim()
+  )
+    score += 2;
+
+  const need = session.need || "";
+  if (
+    /\b(get\s*found|get\s*selling|river|linkedin|shopify|woocommerce|woo\b|store|shop|checkout|payfast|yoco|whatsapp|waba|leads?|outreach|website|qualify|bot|invisible|losing|enquir)/i.test(
+      need,
+    )
+  )
+    score += 3;
+  else if (need.trim()) score += 1;
+
+  if (score > 10) score = 10;
+  const temperature = score >= 7 ? "hot" : score >= 4 ? "warm" : "cold";
+  return { score, temperature };
+}
+
+function applyScore(session) {
+  const rec = recommendPackage(session);
+  const { score, temperature } = scoreLead(session);
+  return { ...session, score, temperature, package_hint: rec.name };
+}
+
+function digitsOnly(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+function hotLeadWa() {
+  return digitsOnly(env.HOT_LEAD_WA) || "27727710400";
+}
+
+function formatHotCard(session) {
+  const name = session.profile_name || "Unknown";
+  const pkg = session.package_hint || "unscored package";
+  const score = session.score ?? 0;
+  const trim = (v) => {
+    const t = String(v || "").replace(/\s+/g, " ").trim();
+    if (!t) return "—";
+    return t.length > 80 ? `${t.slice(0, 79)}…` : t;
+  };
+  return (
+    `HOT *${name}* ${session.wa_id} · score ${score}/10 · *${pkg}*\n` +
+    `Need: ${trim(session.need)}\n` +
+    `Timeline: ${trim(session.timeline)}\n` +
+    `Fit: ${trim(session.fit)}`
+  );
+}
+
+async function maybeNotifyHotLead(session) {
+  if (session.hot_notified) return false;
+  if ((session.score ?? 0) < 7 || session.temperature !== "hot") return false;
+  if (digitsOnly(session.wa_id) === hotLeadWa()) return false;
+  const send = await sendTextMessage(hotLeadWa(), formatHotCard(session));
+  if (!send.ok) {
+    console.error("hot lead notify failed", send);
+    return false;
+  }
+  console.log("hot lead notified", {
+    to: hotLeadWa(),
+    wa_id: session.wa_id,
+    score: session.score,
+  });
+  return true;
+}
+
+const PRODUCT_PACK = `You are River Agent for EcoLife Automation (charmsystemsllc.com). Sell ONLY Get Found, Get Selling, and River Agent. Prices excl. VAT. No calendar. Never recommend Custom Automation.
+River Agent: Starter R5,500/mo; Growth R9,999/mo. https://charmsystemsllc.com/
+Get Found: Starter R4,500/mo; Growth R9,500/mo; Scale R18,000/mo. https://charmsystemsllc.com/get-found
+Get Selling: Starter R18,000+R2,900/mo; Growth R38,000+R5,900/mo. https://charmsystemsllc.com/get-selling
+Soft close: ceo@charmsystemsllc.com or +27 72 606 4522. Short WhatsApp bubble.`;
+
+async function groqFollowUp(session, inboundText) {
+  const key = env.GROQ_API_KEY;
+  if (!key) return null;
+  const user = String(inboundText || "").trim();
+  if (!user) return null;
+  try {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), 4000);
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.3,
+        max_tokens: 220,
+        messages: [
+          {
+            role: "system",
+            content: `${PRODUCT_PACK}
+
+Current lead: ${session.profile_name || "unknown"}; need=${session.need || ""}; timeline=${session.timeline || ""}; fit=${session.fit || ""}; recommended=${session.package_hint || ""}; score=${session.score ?? "?"}/10`,
+          },
+          { role: "user", content: user.slice(0, 800) },
+        ],
+      }),
+      signal: ac.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) {
+      console.error("groq http", res.status);
+      return null;
+    }
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content?.trim();
+    return text ? String(text).slice(0, 900) : null;
+  } catch (err) {
+    console.error("groq follow-up failed", err);
+    return null;
+  }
 }
 
 function createSession(wa_id, profile_name) {
@@ -185,7 +372,7 @@ function advanceStage(session, text) {
   if (!t) return next;
   const stage = session.stage;
   if (stage === "need" && !session.need) {
-    if (isGreetingOnly(t)) return next;
+    if (isGreetingOnly(t) || isResetIntent(t)) return next;
     next.need = t.slice(0, 500);
     next.stage = "timeline";
   } else if (stage === "timeline" && !session.timeline) {
@@ -200,7 +387,7 @@ function advanceStage(session, text) {
   return next;
 }
 
-function buildSalesReply(session, inboundText, previousStage) {
+async function buildSalesReply(session, inboundText, previousStage) {
   const email = env.SALES_CONTACT_EMAIL;
   const phone = env.SALES_CONTACT_PHONE;
   const site = env.PUBLIC_SITE;
@@ -211,9 +398,9 @@ function buildSalesReply(session, inboundText, previousStage) {
     session.message_count <= 1 ||
     (previousStage === "need" &&
       session.stage === "need" &&
-      isGreetingOnly(inboundText))
+      (isGreetingOnly(inboundText) || isResetIntent(inboundText)))
   ) {
-    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell packages from ${site} (prices excl. VAT).\n\n${Q_NEED}`;
+    return `${hi} — I'm River Agent for EcoLife Automation.\n\nI sell Get Found, Get Selling, and River Agent from ${site} (prices excl. VAT).\n\n${Q_NEED}`;
   }
   if (session.stage === "timeline" && previousStage === "need") {
     return `Got it.\n\n${Q_TIMELINE}`;
@@ -223,9 +410,12 @@ function buildSalesReply(session, inboundText, previousStage) {
   }
   if (session.stage === "recommend" || (previousStage === "fit" && session.fit)) {
     const rec = recommendPackage(session);
+    const score = session.score ?? scoreLead(session).score;
+    const temperature = session.temperature ?? scoreLead(session).temperature;
     return (
       `Based on what you shared, I'd steer you to *${rec.name}* — ${rec.price}.\n\n` +
       `${rec.why}\n${rec.url}\n\n` +
+      `I'll treat this as a ${temperature} enquiry (${score}/10).\n\n` +
       `Soft close: email ${email} or WhatsApp ${phone} and we'll lock scope.\n\n` +
       `Want me to compare Starter vs Growth on that line?`
     );
@@ -233,6 +423,8 @@ function buildSalesReply(session, inboundText, previousStage) {
   if (session.stage === "need") return Q_NEED;
   if (session.stage === "timeline") return Q_TIMELINE;
   if (session.stage === "fit") return Q_FIT;
+  const groq = await groqFollowUp(session, inboundText);
+  if (groq) return groq;
   const rec = recommendPackage(session);
   return `Happy to help further. Best fit right now: *${rec.name}* (${rec.price}).\nReach ${email} / ${phone} · ${site}`;
 }
@@ -345,11 +537,21 @@ async function processInbound(message) {
   else if (message.profile_name && !session.profile_name) {
     session.profile_name = message.profile_name;
   }
-  const previousStage = session.stage;
+  if (shouldResetSession(session, message.text)) {
+    session = createSession(
+      message.wa_id,
+      message.profile_name || session.profile_name,
+    );
+  }
+  const stageBeforeAdvance = session.stage;
   session = advanceStage(session, message.text);
+  if (stageBeforeAdvance === "fit" && session.stage === "recommend") {
+    session = applyScore(session);
+    if (await maybeNotifyHotLead(session)) session.hot_notified = true;
+  }
   sessions.set(message.wa_id, session);
 
-  const text = buildSalesReply(session, message.text, previousStage);
+  const text = await buildSalesReply(session, message.text, stageBeforeAdvance);
   const send = await sendTextMessage(message.wa_id, text);
   pushLog({
     kind: "message",
@@ -359,7 +561,7 @@ async function processInbound(message) {
     stage: session.stage,
     reply_ok: send.ok,
     dry_run: send.dry_run,
-    reply_preview: text.slice(0, 160),
+    reply_preview: text.slice(0, 400),
     send_error: send.error || null,
   });
   console.log("local sales reply", {
@@ -409,6 +611,8 @@ const server = createServer(async (req, res) => {
         dry_run: isDryRun(),
         reply_mode: "worker",
         messaging_api_configured: Boolean(env.D360_API_KEY),
+        groq_configured: Boolean(env.GROQ_API_KEY),
+        products: ["Get Found", "Get Selling", "River Agent"],
         blocked:
           env.D360_API_KEY && !isDryRun()
             ? null
@@ -458,8 +662,6 @@ const server = createServer(async (req, res) => {
         res.writeHead(200, { "content-type": "text/plain" });
         return res.end("OK");
       }
-      res.writeHead(200, { "content-type": "text/plain" });
-      res.end("OK");
       const inbound = extractInboundMessages(body);
       if (inbound.length === 0) {
         pushLog({ kind: "status_or_empty", note: "no messages in payload" });
@@ -471,7 +673,8 @@ const server = createServer(async (req, res) => {
           console.error("processInbound failed", message.id, err);
         }
       }
-      return;
+      res.writeHead(200, { "content-type": "text/plain" });
+      return res.end("OK");
     }
 
     if (req.method === "POST" && path === "/send") {
