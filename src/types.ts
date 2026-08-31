@@ -22,6 +22,8 @@ export interface Env {
   PUBLIC_SITE: string;
   SALES_CONTACT_EMAIL: string;
   SALES_CONTACT_PHONE: string;
+  /** WhatsApp digits for hot-lead cards (Ricky). Default 27727710400 */
+  HOT_LEAD_WA?: string;
 
   /** Secrets — optional at type level so dry-run scaffold typechecks */
   CURSOR_WEBHOOK_URL?: string;
@@ -29,9 +31,12 @@ export interface Env {
   D360_API_KEY?: string;
   D360_PHONE_NUMBER_ID?: string;
   SEND_AUTH_TOKEN?: string;
+  GROQ_API_KEY?: string;
 }
 
 export type QualifyStage = "need" | "timeline" | "fit" | "recommend" | "done";
+
+export type LeadTemperature = "hot" | "warm" | "cold";
 
 export interface SessionState {
   wa_id: string;
@@ -41,11 +46,21 @@ export interface SessionState {
   timeline?: string;
   fit?: string;
   package_hint?: string;
+  score?: number;
+  temperature?: LeadTemperature;
+  hot_notified?: boolean;
   last_inbound_at?: string;
   last_message_id?: string;
   message_count: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface PackageRec {
+  name: string;
+  price: string;
+  why: string;
+  url: string;
 }
 
 export interface InboundMessage {

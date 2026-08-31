@@ -13,7 +13,8 @@
     "go-live": "node scripts/go-live.mjs",
     "watch-go-live": "node scripts/watch-go-live.mjs",
     "watch-tunnel": "node scripts/watch-tunnel.mjs",
-    "test:webhook": "node scripts/simulate-webhook.mjs"
+    "test:webhook": "node scripts/simulate-webhook.mjs",
+    "test:qualify": "node scripts/test-qualify.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260828.1",

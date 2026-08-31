@@ -1,4 +1,4 @@
-import { isGreetingOnly } from "./sales-reply";
+import { isGreetingOnly, isResetIntent } from "./sales-reply";
 import type { Env, QualifyStage, SessionState } from "./types";
 import { getKv } from "./kv";
 import { num } from "./util";
@@ -57,11 +57,7 @@ export function advanceStage(
 
   const stage: QualifyStage = session.stage;
   if (stage === "need" && !session.need) {
-    // Don't treat "hi" as the business need
-    if (isGreetingOnly(t) && (session.message_count ?? 0) === 0) {
-      return next;
-    }
-    if (isGreetingOnly(t) && !session.need) {
+    if (isGreetingOnly(t) || isResetIntent(t)) {
       return next;
     }
     next.need = t.slice(0, 500);
