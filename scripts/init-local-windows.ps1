@@ -46,6 +46,13 @@ if (Test-Path (Join-Path $Dest ".git")) {
   Set-Location $Dest
 }
 
+$example = Join-Path $Dest ".dev.vars.example"
+$vars = Join-Path $Dest ".dev.vars"
+if ((Test-Path $example) -and -not (Test-Path $vars)) {
+  Copy-Item $example $vars
+  Write-Host "Created $vars from example (not committed). Set DRY_RUN=false and D360_API_KEY."
+}
+
 Write-Host ""
 Write-Host "Local git ready:"
 Write-Host "  path:   $Dest"
@@ -54,7 +61,6 @@ Write-Host "  head:   $(git -C $Dest rev-parse --short HEAD) $(git -C $Dest log 
 Write-Host ""
 Write-Host "Next:"
 Write-Host "  cd $Dest"
-Write-Host "  copy .dev.vars.example .dev.vars"
+Write-Host "  notepad .dev.vars"
 Write-Host "  npm ci"
-Write-Host "  npm run check"
-Write-Host "  See GO_LIVE.md"
+Write-Host "  npm run local"
