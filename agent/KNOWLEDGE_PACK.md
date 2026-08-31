@@ -66,7 +66,7 @@ Website that converts + LinkedIn content/outreach engine.
 Shopify or WooCommerce. PayFast / Yoco (or equivalent). Platform + gateway fees excluded.
 
 | Package | Build | Maintain | Notes |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | **Starter Store** | **R18,000** | **R2,900/mo** | ~50 products; theme/light custom |
 | **Growth Store** (best value) | **R38,000** | **R5,900/mo** | ~200 products; shipping/policies; priority maintain |
 | **Scale Store** | **From R65,000** | **R11,900/mo** | Advanced/custom; stock/accounting handoffs; larger catalogue |
